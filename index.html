@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 단어 퀴즈</title>
+    <style>
+        :root {
+            --bg-color: #fcfbf9;
+            --card-bg: #ffffff;
+            --gold-primary: #c5a059;
+            --gold-light: #fdfaf3;
+            --gold-border: #e6dcbe;
+            --gold-hover: #b08d46;
+            --text-color: #2c2c2c;
+            --text-muted: #666666;
+            --border-color: #e5e5e5;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 620px;
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            border: 2px solid var(--gold-border);
+            box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1), 0 4px 15px rgba(0, 0, 0, 0.05);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--gold-primary);
+            margin-top: 0;
+            margin-bottom: 28px;
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-color);
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: #faf9f6;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            color: var(--text-color);
+            box-sizing: border-box;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--gold-primary);
+            background-color: #ffffff;
+            box-shadow: 0 0 8px rgba(197, 160, 89, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #c5a059 0%, #a37d37 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 12px;
+            box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #d1ac63, #b48a40);
+            box-shadow: 0 6px 15px rgba(197, 160, 89, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        .btn-secondary:hover {
+            background: #e5e7eb;
+            border-color: var(--gold-primary);
+            box-shadow: none;
+        }
+
+        .btn-warning {
+            background: #fffbeb;
+            border: 1px solid #fcd34d;
+            color: #d97706;
+        }
+        .btn-warning:hover {
+            background: #fef3c7;
+            box-shadow: none;
+        }
+
+        .btn-tts {
+            background: #e0f2fe;
+            color: #0284c7;
+            border: 1px solid #bae6fd;
+            width: auto;
+            padding: 6px 12px;
+            font-size: 13px;
+            margin-left: 10px;
+            margin-top: 0;
+            display: inline-block;
+            box-shadow: none;
+        }
+        .btn-tts:hover { background: #bae6fd; transform: none; }
+
+        .help-link {
+            font-size: 13px;
+            color: var(--gold-primary);
+            text-decoration: underline;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 8px;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .help-link:hover { opacity: 1; }
+
+        /* 팝업 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border: 2px solid var(--gold-border);
+            padding: 30px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .modal-content h3 { margin-top: 0; color: var(--gold-primary); }
+        .modal-content p { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
+        .close-btn { background: #ef4444; margin-top: 20px; border: none; }
+        .close-btn:hover { background: #dc2626; }
+
+        /* 퀴즈 스타일 */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .situation-box {
+            background: var(--gold-light);
+            border-left: 4px solid var(--gold-primary);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            min-height: 60px;
+            color: var(--text-color);
+        }
+
+        .hint-box {
+            font-weight: bold;
+            color: #d97706;
+            margin-bottom: 15px;
+            min-height: 20px;
+            font-size: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .hint-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .hint-buttons button {
+            margin-top: 0;
+            font-size: 14px;
+            padding: 12px;
+        }
+
+        /* 객관식 보기 영역 */
+        .options-grid {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .option-btn {
+            background: #faf9f6;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 0;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover {
+            border-color: var(--gold-primary);
+            background: var(--gold-light);
+            transform: none;
+        }
+
+        /* 결과 피드백 박스 */
+        .feedback-box {
+            display: none;
+            background: #faf9f6;
+            border: 1px solid var(--gold-border);
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--gold-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: center;
+        }
+        th { background: var(--gold-light); color: var(--gold-primary); }
+        td { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>단어 퀴즈</h1>
+
+    <!-- 1. API 키 설정 화면 -->
+    <div id="setup-section" class="section active">
+        <div class="form-group">
+            <label for="api-key">Gemini API 키 입력</label>
+            <input type="password" id="api-key" placeholder="API 키를 입력하세요">
+            <span class="help-link" onclick="openHelpModal()">API 키를 받는 방법이 궁금하신가요?</span>
+        </div>
+        <button onclick="saveApiKey()">키 저장 및 시작하기</button>
+    </div>
+
+    <!-- 2. 게임 설정 화면 -->
+    <div id="config-section" class="section">
+        <div class="form-group">
+            <label for="difficulty">난이도 선택</label>
+            <select id="difficulty">
+                <option value="초급 (Elementary)">초급</option>
+                <option value="중급 (Intermediate)" selected>중급</option>
+                <option value="고급 (Advanced)">고급</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="word-type">단어 유형 선택</label>
+            <select id="word-type">
+            <option value="random">🎲 무작위 주제 (랜덤)</option>
+            <option value="공항 및 해외 여행 상황">✈️ 공항 및 해외 여행</option>
+            <option value="식당 주문 및 카페 이용">☕ 식당 주문 및 카페 이용</option>
+            <option value="비즈니스 미팅 및 이메일 표현">💼 비즈니스 및 업무 회화</option>
+            <option value="친구와의 일상 수다 및 감정 표현">🗣️ 일상 대화 및 감정 표현</option>
+            <option value="쇼핑 및 환불/교환 상황">🛍️ 쇼핑 및 환불/교환</option>
+            <option value="호텔 예약 및 체크인/체크아웃">🏨 호텔 및 숙소 이용</option>
+            <option value="길 찾기 및 교통수단 이용">🗺️ 길 찾기 및 교통수단</option>
+            <option value="학교 수업 및 발표 상황">🎓 학교 수업 및 발표</option>
+            <option value="취업 준비 및 면접 질문">💼 취업 준비 및 면접</option>
+            <option value="가족 행사 및 명절 대화">🏡 가족 행사 및 명절</option>
+            <option value="건강, 운동, 병원 방문">🏥 건강 및 병원</option>
+            <option value="취미 생활 및 여가 활동">🎨 취미와 여가</option>
+            <option value="스마트폰, 앱, 디지털 기기">📱 스마트폰 및 디지털</option>
+            <option value="날씨, 계절, 자연환경">🌤️ 날씨와 자연</option>
+            <option value="뉴스, 사회 이슈, 의견 표현">📰 뉴스 및 사회 이슈</option>
+            <option value="영화, 음악, 예술 감상">🎬 영화와 예술</option>               
+            </select>
+        </div>
+        <button onclick="generateQuizQuestions()">문제 생성하기</button>
+        <button class="btn-secondary" onclick="showHistorySection()">기록 보기</button>
+        <div class="loader" id="loader"></div>
+    </div>
+
+    <!-- 3. 퀴즈 풀기 화면 -->
+    <div id="quiz-section" class="section">
+        <div class="quiz-header">
+            <span id="quiz-progress">문제 1 / 10</span>
+            <span id="quiz-score">점수: 0점</span>
+        </div>
+        <div class="situation-box" id="situation-text">상황 설명 로딩 중...</div>
+        <div class="hint-box" id="hint-text"></div>
+        
+        <!-- 주관식 입력 영역 -->
+        <div id="input-area">
+            <div class="input-group">
+                <input type="text" id="user-answer" placeholder="정답 영어 단어를 입력하세요" onkeypress="if(event.key === 'Enter') submitAnswer();">
+                <button onclick="submitAnswer()" style="width: 100px; margin-top:0;">제출</button>
+            </div>
+        </div>
+
+        <!-- 힌트 버튼 영역 (항상 노출) -->
+        <div class="hint-buttons">
+            <button class="btn-warning" onclick="showLengthHint()">글자 수 힌트</button>
+            <button class="btn-secondary" onclick="showMultipleChoice()">객관식 4개 보기</button>
+        </div>
+
+        <!-- 객관식 보기 영역 (초기 숨김) -->
+        <div class="options-grid" id="options-container"></div>
+
+        <!-- 정답 확인 후 피드백 및 다음 문제 버튼 -->
+        <div class="feedback-box" id="feedback-box">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
+                <button class="btn-tts" onclick="playPronunciation()">🔊 발음 듣기</button>
+            </div>
+            <p id="word-definition" style="margin: 0 0 6px 0; color: var(--text-muted);"></p>
+            <p id="word-example" style="margin: 0; color: #0284c7; font-style: italic;"></p>
+        </div>
+        <button id="next-btn" style="display: none;" onclick="nextQuestion()">다음 문제</button>
+    </div>
+
+    <!-- 4. 결과 및 기록 화면 -->
+    <div id="result-section" class="section">
+        <h2 style="text-align: center; color: var(--gold-primary);">퀴즈 완료</h2>
+        <p id="final-score-text" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--text-color);"></p>
+        
+        <h3 style="margin-top: 20px; color: var(--gold-primary); font-size: 16px;">역대 기록 보기</h3>
+        <div style="max-height: 200px; overflow-y: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>날짜</th>
+                        <th>난이도</th>
+                        <th>유형</th>
+                        <th>점수</th>
+                    </tr>
+                </thead>
+                <tbody id="history-tbody"></tbody>
+            </table>
+        </div>
+        <button onclick="resetToConfig()" style="margin-top: 20px;">다시 플레이하기</button>
+    </div>
+</div>
+
+<!-- API 키 발급 도움말 모달 -->
+<div class="modal" id="help-modal">
+    <div class="modal-content">
+        <h3>Gemini API 키 발급 방법</h3>
+        <p>1. [Google AI Studio](https://aistudio.google.com/)에 접속합니다.</p>
+        <p>2. 구글 계정으로 로그인 후 상단의 <strong>'Get API key'</strong> 버튼을 클릭합니다.</p>
+        <p>3. 생성된 API 키를 복사하여 첫 화면의 입력란에 붙여넣습니다.</p>
+        <button class="close-btn" onclick="closeHelpModal()">닫기</button>
+    </div>
+</div>
+
+<script>
+    let apiKey = localStorage.getItem('gemini_api_key') || '';
+    let quizData = [];
+    let currentIdx = 0;
+    let score = 0;
+    let selectedDifficulty = '';
+    let selectedType = '';
+    let currentCorrectWord = '';
+
+    window.onload = function() {
+        if (apiKey) {
+            document.getElementById('api-key').value = apiKey;
+            switchSection('config-section');
+        }
+    };
+
+    function saveApiKey() {
+        const keyInput = document.getElementById('api-key').value.trim();
+        if (!keyInput) { alert('API 키를 입력해주세요.'); return; }
+        apiKey = keyInput;
+        localStorage.setItem('gemini_api_key', apiKey);
+        switchSection('config-section');
+    }
+
+    function openHelpModal() { document.getElementById('help-modal').style.display = 'flex'; }
+    function closeHelpModal() { document.getElementById('help-modal').style.display = 'none'; }
+    function switchSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+    }
+
+    async function callGeminiAPI(prompt, retries = 5) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+        
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API 호출 실패');
+                const data = await response.json();
+                return data.candidates[0].content.parts[0].text;
+            } catch (err) {
+                if (attempt === retries) throw err;
+                await new Promise(res => setTimeout(res, 1000 * attempt));
+            }
+        }
+    }
+
+    async function generateQuizQuestions() {
+        selectedDifficulty = document.getElementById('difficulty').value;
+        selectedType = document.getElementById('word-type').value;
+        document.getElementById('loader').style.display = 'block';
+
+        let allQuestions = [];
+        let existingWords = new Set();
+        let attempts = 0;
+
+        while (allQuestions.length < 10 && attempts < 5) {
+            attempts++;
+            let excludeNote = existingWords.size > 0 ? ` 단, 다음 단어들은 이미 생성되었으므로 제외해줘: ${Array.from(existingWords).join(', ')}` : '';
+
+            const prompt = `난이도: ${selectedDifficulty}, 단어 유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 10문제를 생성해줘.${excludeNote}
+반드시 아래 JSON 배열 형식으로만 응답해줘. (백틱 없이 순수 JSON만)
+[
+  {
+    "word": "정답 영어 단어",
+    "situation": "이 단어가 사용되는 구체적인 한국어 상황 설명",
+    "definition": "단어의 상세한 의미 및 뉘앙스 설명",
+    "example": "단어가 포함된 영어 예문 (한국어 번역 포함)",
+    "distractors": ["오답단어1", "오답단어2", "오답단어3"]
+  }
+]`;
+
+            try {
+                const responseText = await callGeminiAPI(prompt);
+                const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const parsed = JSON.parse(cleanText);
+
+                for (let q of parsed) {
+                    if (q.word && !existingWords.has(q.word.toLowerCase()) && allQuestions.length < 10) {
+                        existingWords.add(q.word.toLowerCase());
+                        allQuestions.push(q);
+                    }
+                }
+            } catch (e) {
+                console.error('생성 시도 중 오류 발생:', e);
+            }
+        }
+
+        document.getElementById('loader').style.display = 'none';
+
+        if (allQuestions.length === 0) {
+            alert('문제 생성 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.');
+            return;
+        }
+
+        quizData = allQuestions;
+        currentIdx = 0;
+        score = 0;
+        switchSection('quiz-section');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentIdx >= quizData.length) {
+            finishQuiz();
+            return;
+        }
+
+        const q = quizData[currentIdx];
+        currentCorrectWord = q.word;
+
+        document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
+        document.getElementById('quiz-score').innerText = `점수: ${score}점`;
+        document.getElementById('situation-text').innerText = q.situation;
+        document.getElementById('hint-text').innerText = '';
+        document.getElementById('user-answer').value = '';
+        
+        document.getElementById('input-area').style.display = 'block';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('feedback-box').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+    }
+
+    function showLengthHint() {
+        const q = quizData[currentIdx];
+        document.getElementById('hint-text').innerText = `💡 글자 수 힌트: ${q.word.length}글자`;
+    }
+
+    function showMultipleChoice() {
+        const q = quizData[currentIdx];
+        let options = [...q.distractors, q.word];
+        options.sort(() => Math.random() - 0.5);
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => processAnswer(opt, q.word);
+            container.appendChild(btn);
+        });
+
+        container.style.display = 'grid';
+    }
+
+    function submitAnswer() {
+        const userInputValue = document.getElementById('user-answer').value.trim();
+        if (!userInputValue) {
+            alert('단어를 입력해주세요!');
+            return;
+        }
+        const q = quizData[currentIdx];
+        processAnswer(userInputValue, q.word);
+    }
+
+    function processAnswer(selected, correct) {
+        const isCorrect = selected.toLowerCase() === correct.toLowerCase();
+        if (isCorrect) {
+            score += 10;
+            document.getElementById('feedback-result').innerText = `정답입니다! 👏 ('${correct}')`;
+            document.getElementById('feedback-result').style.color = '#16a34a';
+        } else {
+            document.getElementById('feedback-result').innerText = `틀렸습니다! 정답은 '${correct}' 입니다.`;
+            document.getElementById('feedback-result').style.color = '#dc2626';
+        }
+
+        const q = quizData[currentIdx];
+        document.getElementById('word-definition').innerText = `📖 단어 설명: ${q.definition}`;
+        document.getElementById('word-example').innerText = `💬 예문: ${q.example}`;
+
+        document.getElementById('input-area').style.display = 'none';
+        document.getElementById('options-container').style.display = 'none';
+        document.getElementById('feedback-box').style.display = 'block';
+        document.getElementById('next-btn').style.display = 'block';
+        document.getElementById('quiz-score').innerText = `점수: ${score}점`;
+    }
+
+    function playPronunciation() {
+        if (!currentCorrectWord) return;
+        const utterance = new SpeechSynthesisUtterance(currentCorrectWord);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function nextQuestion() {
+        currentIdx++;
+        loadQuestion();
+    }
+
+    function finishQuiz() {
+        switchSection('result-section');
+        document.getElementById('final-score-text').innerText = `총 점수: ${score}점 / 100점`;
+
+        const historyRecord = {
+            date: new Date().toLocaleDateString(),
+            difficulty: selectedDifficulty,
+            type: selectedType,
+            score: score
+        };
+
+        let histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
+        histories.unshift(historyRecord);
+        localStorage.setItem('quiz_histories', JSON.stringify(histories));
+        renderHistoryTable();
+    }
+
+    function showHistorySection() {
+        renderHistoryTable();
+        switchSection('result-section');
+        document.getElementById('final-score-text').innerText = '역대 퀴즈 기록 저장소';
+    }
+
+    function renderHistoryTable() {
+        const tbody = document.getElementById('history-tbody');
+        tbody.innerHTML = '';
+        const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
+
+        if (histories.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">저장된 기록이 없습니다.</td></tr>`;
+            return;
+        }
+
+        histories.forEach(h => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${h.date}</td><td>${h.difficulty}</td><td>${h.type}</td><td><b>${h.score}점</b></td>`;
+            tbody.appendChild(tr);
+        });
+    }
+
+    function resetToConfig() {
+        switchSection('config-section');
+    }
+</script>
+
+</body>
+</html>
