@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영어 단어 퀴즈</title>
+    <title>영어 퀴즈</title>
     <style>
         :root {
             --bg-color: #fcfbf9;
@@ -256,7 +256,7 @@
 <body>
 
 <div class="container">
-    <h1>단어 퀴즈</h1>
+    <h1>영어 단어 퀴즈</h1>
 
     <!-- 1. API 키 설정 화면 -->
     <div id="setup-section" class="section active">
@@ -307,13 +307,16 @@
 
         <!-- 정답 확인 후 피드백 및 다음 문제 버튼 -->
         <div class="feedback-box" id="feedback-box">
-            <p id="feedback-result" style="font-weight: bold; margin: 0 0 8px 0;"></p>
+            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+                <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
+                <button class="btn-tts" onclick="playWordPronunciation()">🔊 단어 듣기</button>
+            </div>
             <div style="margin-bottom: 6px; color: var(--text-muted);">
                 <span id="word-definition"></span>
             </div>
             <div style="color: #0284c7; font-style: italic; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                 <span id="word-example"></span>
-                <button class="btn-tts" onclick="playPronunciation()">🔊 예문 듣기</button>
+                <button class="btn-tts" onclick="playExamplePronunciation()">🔊 예문 영어만 듣기</button>
             </div>
         </div>
         <button id="next-btn" style="display: none;" onclick="nextQuestion()">다음 문제</button>
@@ -360,7 +363,8 @@
     let score = 0;
     let selectedDifficulty = '';
     let selectedType = '';
-    let currentExampleText = '';
+    let currentCorrectWord = '';
+    let currentEnglishExample = '';
 
     window.onload = function() {
         if (apiKey) {
@@ -427,7 +431,8 @@
   {
     "word": "정답 영어 단어",
     "definition": "이 단어의 상세한 의미 및 여러 가지 뜻과 뉘앙스 설명",
-    "example": "단어가 포함된 영어 예문 (한국어 번역 포함)",
+    "example_en": "단어가 포함된 영어 예문만 작성",
+    "example_ko": "해당 영어 예문의 한국어 번역",
     "distractors": ["오답단어1", "오답단어2", "오답단어3"]
   }
 ]`;
@@ -469,13 +474,13 @@
         }
 
         const q = quizData[currentIdx];
-        currentExampleText = q.example;
+        currentCorrectWord = q.word;
+        currentEnglishExample = q.example_en;
 
         document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
         document.getElementById('situation-text').innerText = `📌 [단어의 의미 및 뉘앙스]\n${q.definition}`;
         
-        // 보기 생성 (정답 + 3개의 오답을 섞어서 4개 버튼으로 배치)
         let options = [...q.distractors, q.word];
         options.sort(() => Math.random() - 0.5);
 
@@ -507,7 +512,7 @@
 
         const q = quizData[currentIdx];
         document.getElementById('word-definition').innerText = `📖 상세 정의: ${q.definition}`;
-        document.getElementById('word-example').innerText = `💬 예문: ${q.example}`;
+        document.getElementById('word-example').innerText = `💬 예문: ${q.example_en} (${q.example_ko})`;
 
         document.getElementById('options-container').style.display = 'none';
         document.getElementById('feedback-box').style.display = 'block';
@@ -515,9 +520,16 @@
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
     }
 
-    function playPronunciation() {
-        if (!currentExampleText) return;
-        const utterance = new SpeechSynthesisUtterance(currentExampleText);
+    function playWordPronunciation() {
+        if (!currentCorrectWord) return;
+        const utterance = new SpeechSynthesisUtterance(currentCorrectWord);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function playExamplePronunciation() {
+        if (!currentEnglishExample) return;
+        const utterance = new SpeechSynthesisUtterance(currentEnglishExample);
         utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
     }
