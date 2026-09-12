@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영어 단어퀴즈</title>
+    <title>영어 단어 퀴즈</title>
     <style>
         :root {
             --bg-color: #fcfbf9;
@@ -249,20 +249,28 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* 기록 보기 리스트 스타일 (테이블 대신 한 줄 텍스트 형태) */
+        .history-list-container {
+            max-height: 250px;
+            overflow-y: auto;
             margin-top: 15px;
-            font-size: 14px;
-        }
-        th, td {
             border: 1px solid var(--border-color);
-            padding: 12px;
-            text-align: center;
+            border-radius: 10px;
+            background: #faf9f6;
         }
-        th { background: var(--gold-light); color: var(--gold-primary); }
-        td { color: var(--text-muted); cursor: pointer; }
-        tbody tr:hover { background-color: var(--gold-light); }
+        .history-row {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-row:last-child { border-bottom: none; }
+        .history-row:hover { background-color: var(--gold-light); color: var(--text-color); }
     </style>
 </head>
 <body>
@@ -293,14 +301,14 @@
         <div class="form-group">
             <label for="word-type">단어 유형 선택</label>
             <select id="word-type">
-            <option value="random">🎲 무작위 주제 (랜덤)</option>
-            <option value="공항 및 해외 여행 상황">✈️ 공항 및 해외 여행</option>
-            <option value="식당 주문 및 카페 이용">☕ 식당 주문 및 카페 이용</option>
-            <option value="비즈니스 미팅 및 이메일 표현">💼 비즈니스 및 업무 회화</option>
-            <option value="친구와의 일상 수다 및 감정 표현">🗣️ 일상 대화 및 감정 표현</option>
-            <option value="쇼핑 및 환불/교환 상황">🛍️ 쇼핑 및 환불/교환</option>
-            <option value="호텔 예약 및 체크인/체크아웃">🏨 호텔 및 숙소 이용</option>
-            <option value="길 찾기 및 교통수단 이용">🗺️ 길 찾기 및 교통수단</option>
+                <option value="🎲 무작위 주제 (랜덤)">🎲 무작위 주제 (랜덤)</option>
+                <option value="✈️ 공항 및 해외 여행">✈️ 공항 및 해외 여행</option>
+                <option value="☕ 식당 주문 및 카페 이용">☕ 식당 주문 및 카페 이용</option>
+                <option value="💼 비즈니스 및 업무 회화">💼 비즈니스 및 업무 회화</option>
+                <option value="🗣️ 일상 대화 및 감정 표현">🗣️ 일상 대화 및 감정 표현</option>
+                <option value="🛍️ 쇼핑 및 환불/교환">🛍️ 쇼핑 및 환불/교환</option>
+                <option value="🏨 호텔 및 숙소 이용">🏨 호텔 및 숙소 이용</option>
+                <option value="🗺️ 길 찾기 및 교통수단">🗺️ 길 찾기 및 교통수단</option>
             </select>
         </div>
         <button onclick="generateQuizQuestions()">퀴즈 문제 생성하기</button>
@@ -334,23 +342,10 @@
 
     <!-- 4. 결과 및 기록 화면 -->
     <div id="result-section" class="section">
-        <h2 style="text-align: center; color: var(--gold-primary);">퀴즈 완료</h2>
+        <h2 id="section-title" style="text-align: center; color: var(--gold-primary);">퀴즈 완료</h2>
         <p id="final-score-text" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--text-color);"></p>
         
-        <h3 style="margin-top: 20px; color: var(--gold-primary); font-size: 16px;">역대 기록 보기 (클릭하여 상세 내역 확인)</h3>
-        <div style="max-height: 200px; overflow-y: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>날짜</th>
-                        <th>난이도</th>
-                        <th>유형</th>
-                        <th>점수</th>
-                    </tr>
-                </thead>
-                <tbody id="history-tbody"></tbody>
-            </table>
-        </div>
+        <div class="history-list-container" id="history-list-box"></div>
         <button onclick="resetToConfig()" style="margin-top: 20px;">다시 플레이하기</button>
     </div>
 </div>
@@ -435,6 +430,16 @@
         }
     }
 
+    function formatCustomDate(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        const h = String(dateObj.getHours()).padStart(2, '0');
+        const min = String(dateObj.getMinutes()).padStart(2, '0');
+        const s = String(dateObj.getSeconds()).padStart(2, '0');
+        return `${y}.${m}.${d} ${h}:${min}:${s}`;
+    }
+
     async function generateQuizQuestions() {
         selectedDifficulty = document.getElementById('difficulty').value;
         selectedType = document.getElementById('word-type').value;
@@ -448,7 +453,7 @@
             attempts++;
             let excludeNote = existingWords.size > 0 ? ` 단, 다음 단어들은 이미 생성되었으므로 제외해줘: ${Array.from(existingWords).join(', ')}` : '';
 
-            const prompt = `난이도: ${selectedDifficulty}, 단어 유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 10문제를 생성해줘.${excludeNote}
+            const prompt = `난이도: ${selectedDifficulty}, 단어 주제/유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 10문제를 생성해줘.${excludeNote}
 반드시 아래 JSON 배열 형식으로만 응답해줘. (백틱 없이 순수 JSON만)
 [
   {
@@ -571,10 +576,11 @@
 
     function finishQuiz() {
         switchSection('result-section');
+        document.getElementById('section-title').innerText = '퀴즈 완료';
         document.getElementById('final-score-text').innerText = `총 점수: ${score}점 / 100점`;
 
         const historyRecord = {
-            date: new Date().toLocaleString(),
+            date: formatCustomDate(new Date()),
             difficulty: selectedDifficulty,
             type: selectedType,
             score: score,
@@ -584,30 +590,36 @@
         let histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         histories.unshift(historyRecord);
         localStorage.setItem('quiz_histories', JSON.stringify(histories));
-        renderHistoryTable();
+        renderHistoryList();
     }
 
     function showHistorySection() {
-        renderHistoryTable();
         switchSection('result-section');
-        document.getElementById('final-score-text').innerText = '역대 퀴즈 기록 저장소';
+        document.getElementById('section-title').innerText = '기록 보기';
+        document.getElementById('final-score-text').innerText = '';
+        renderHistoryList();
     }
 
-    function renderHistoryTable() {
-        const tbody = document.getElementById('history-tbody');
-        tbody.innerHTML = '';
+    function renderHistoryList() {
+        const listBox = document.getElementById('history-list-box');
+        listBox.innerHTML = '';
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
 
         if (histories.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4">저장된 기록이 없습니다.</td></tr>`;
+            listBox.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted);">저장된 기록이 없습니다.</div>`;
             return;
         }
 
         histories.forEach((h, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${h.date}</td><td>${h.difficulty}</td><td>${h.type}</td><td><b>${h.score}점</b></td>`;
-            tr.onclick = () => showHistoryDetail(index);
-            tbody.appendChild(tr);
+            const row = document.createElement('div');
+            row.className = 'history-row';
+            // 형식: [년월일 시분초] [난이도] [유형] [점수]
+            row.innerHTML = `
+                <span>${h.date} | ${h.difficulty} | ${h.type}</span>
+                <b style="color: var(--gold-primary);">${h.score}점</b>
+            `;
+            row.onclick = () => showHistoryDetail(index);
+            listBox.appendChild(row);
         });
     }
 
@@ -647,4 +659,3 @@
 
 </body>
 </html>
-
