@@ -483,7 +483,7 @@
 
         document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
-        document.getElementById('situation-text').innerText = `📌 [단어의 의미 및 뉘앙스]\n${q.definition}`;
+        document.getElementById('situation-text').innerText = `📌 ${q.definition}`;
         
         let options = [...q.distractors, q.word];
         options.sort(() => Math.random() - 0.5);
