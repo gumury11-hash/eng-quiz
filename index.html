@@ -293,9 +293,9 @@
         <div class="form-group">
             <label for="difficulty">난이도 선택</label>
             <select id="difficulty">
-                <option value="초급 (Elementary)">초급</option>
-                <option value="중급 (Intermediate)" selected>중급</option>
-                <option value="고급 (Advanced)">고급</option>
+                <option value="초급">초급</option>
+                <option value="중급" selected>중급</option>
+                <option value="고급">고급</option>
             </select>
         </div>
         <div class="form-group">
@@ -440,7 +440,6 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
-    // 역대 기록에 포함된 모든 단어들을 추출하여 Set으로 반환하는 함수
     function getExcludedWordsFromHistory() {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
@@ -462,7 +461,6 @@
         document.getElementById('loader').style.display = 'block';
 
         let allQuestions = [];
-        // 역대 기록의 단어들과 이번 세션에서 이미 담긴 단어들을 추적
         let existingWords = getExcludedWordsFromHistory();
         let attempts = 0;
 
@@ -527,7 +525,7 @@
 
         document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
-        document.getElementById('situation-text').innerText = `📌 ${q.definition}`;
+        document.getElementById('situation-text').innerText = `${q.definition}`;
         
         let options = [...q.distractors, q.word];
         options.sort(() => Math.random() - 0.5);
@@ -550,7 +548,7 @@
     function processAnswer(selected, correct) {
         const isCorrect = selected.toLowerCase() === correct.toLowerCase();
         if (isCorrect) {
-            score += Math.round(100 / quizData.length); // 문제 수에 맞게 점수 배분
+            score += Math.round(100 / quizData.length);
             document.getElementById('feedback-result').innerText = `정답입니다! 👏 ('${correct}')`;
             document.getElementById('feedback-result').style.color = '#16a34a';
         } else {
