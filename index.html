@@ -315,9 +315,6 @@
                 <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
                 <button class="btn-tts" onclick="playWordPronunciation()">🔊 단어 듣기</button>
             </div>
-            <div style="margin-bottom: 6px; color: var(--text-muted);">
-                <span id="word-definition"></span>
-            </div>    
             <div style="color: #0284c7; font-style: italic; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
                 <span id="word-example"></span>
                 <button class="btn-tts" onclick="playExamplePronunciation()">🔊 예문 영어만 듣기</button>
@@ -515,9 +512,7 @@
         }
 
         const q = quizData[currentIdx];
-        document.getElementById('word-definition').innerText = `📖 상세 정의: ${q.definition}`;
         document.getElementById('word-example').innerText = `💬 예문: ${q.example_en} (${q.example_ko})`;
-
         document.getElementById('options-container').style.display = 'none';
         document.getElementById('feedback-box').style.display = 'block';
         document.getElementById('next-btn').style.display = 'block';
