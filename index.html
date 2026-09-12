@@ -114,24 +114,14 @@
             box-shadow: none;
         }
 
-        .btn-warning {
-            background: #fffbeb;
-            border: 1px solid #fcd34d;
-            color: #d97706;
-        }
-        .btn-warning:hover {
-            background: #fef3c7;
-            box-shadow: none;
-        }
-
         .btn-tts {
             background: #e0f2fe;
             color: #0284c7;
             border: 1px solid #bae6fd;
             width: auto;
-            padding: 6px 12px;
-            font-size: 13px;
-            margin-left: 10px;
+            padding: 4px 10px;
+            font-size: 12px;
+            margin-left: 8px;
             margin-top: 0;
             display: inline-block;
             box-shadow: none;
@@ -189,44 +179,17 @@
         .situation-box {
             background: var(--gold-light);
             border-left: 4px solid var(--gold-primary);
-            padding: 18px;
+            padding: 16px;
             border-radius: 0 12px 12px 0;
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            min-height: 60px;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 16px;
             color: var(--text-color);
         }
 
-        .hint-box {
-            font-weight: bold;
-            color: #d97706;
-            margin-bottom: 15px;
-            min-height: 20px;
-            font-size: 15px;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .hint-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .hint-buttons button {
-            margin-top: 0;
-            font-size: 14px;
-            padding: 12px;
-        }
-
-        /* 객관식 보기 영역 */
+        /* 4개 단어 버튼 그리드 */
         .options-grid {
-            display: none;
+            display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             margin-bottom: 15px;
@@ -235,10 +198,11 @@
             background: #faf9f6;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 14px;
+            padding: 16px;
             border-radius: 10px;
             text-align: center;
-            font-size: 15px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
             margin-top: 0;
             box-shadow: none;
@@ -247,7 +211,7 @@
         .option-btn:hover {
             border-color: var(--gold-primary);
             background: var(--gold-light);
-            transform: none;
+            transform: translateY(-2px);
         }
 
         /* 결과 피드백 박스 */
@@ -309,34 +273,21 @@
         <div class="form-group">
             <label for="difficulty">난이도 선택</label>
             <select id="difficulty">
-                <option value="초급 (Elementary)">초급</option>
-                <option value="중급 (Intermediate)" selected>중급</option>
-                <option value="고급 (Advanced)">고급</option>
+                <option value="초급 (Elementary)">초급 (Elementary)</option>
+                <option value="중급 (Intermediate)" selected>중급 (Intermediate)</option>
+                <option value="고급 (Advanced)">고급 (Advanced)</option>
             </select>
         </div>
         <div class="form-group">
             <label for="word-type">단어 유형 선택</label>
             <select id="word-type">
-            <option value="random">🎲 무작위 주제 (랜덤)</option>
-            <option value="공항 및 해외 여행 상황">✈️ 공항 및 해외 여행</option>
-            <option value="식당 주문 및 카페 이용">☕ 식당 주문 및 카페 이용</option>
-            <option value="비즈니스 미팅 및 이메일 표현">💼 비즈니스 및 업무 회화</option>
-            <option value="친구와의 일상 수다 및 감정 표현">🗣️ 일상 대화 및 감정 표현</option>
-            <option value="쇼핑 및 환불/교환 상황">🛍️ 쇼핑 및 환불/교환</option>
-            <option value="호텔 예약 및 체크인/체크아웃">🏨 호텔 및 숙소 이용</option>
-            <option value="길 찾기 및 교통수단 이용">🗺️ 길 찾기 및 교통수단</option>
-            <option value="학교 수업 및 발표 상황">🎓 학교 수업 및 발표</option>
-            <option value="취업 준비 및 면접 질문">💼 취업 준비 및 면접</option>
-            <option value="가족 행사 및 명절 대화">🏡 가족 행사 및 명절</option>
-            <option value="건강, 운동, 병원 방문">🏥 건강 및 병원</option>
-            <option value="취미 생활 및 여가 활동">🎨 취미와 여가</option>
-            <option value="스마트폰, 앱, 디지털 기기">📱 스마트폰 및 디지털</option>
-            <option value="날씨, 계절, 자연환경">🌤️ 날씨와 자연</option>
-            <option value="뉴스, 사회 이슈, 의견 표현">📰 뉴스 및 사회 이슈</option>
-            <option value="영화, 음악, 예술 감상">🎬 영화와 예술</option>               
+                <option value="일상 생활 표현 (Everyday Life)">일상 생활 표현</option>
+                <option value="비즈니스 및 직장 (Business)">비즈니스 및 직장</option>
+                <option value="여행 및 공항 (Travel)">여행 및 공항</option>
+                <option value="학술 및 고급 어휘 (Academic)">학술 및 고급 어휘</option>
             </select>
         </div>
-        <button onclick="generateQuizQuestions()">문제 생성하기</button>
+        <button onclick="generateQuizQuestions()">퀴즈 문제 생성하기</button>
         <button class="btn-secondary" onclick="showHistorySection()">기록 보기</button>
         <div class="loader" id="loader"></div>
     </div>
@@ -347,34 +298,23 @@
             <span id="quiz-progress">문제 1 / 10</span>
             <span id="quiz-score">점수: 0점</span>
         </div>
-        <div class="situation-box" id="situation-text">상황 설명 로딩 중...</div>
-        <div class="hint-box" id="hint-text"></div>
         
-        <!-- 주관식 입력 영역 -->
-        <div id="input-area">
-            <div class="input-group">
-                <input type="text" id="user-answer" placeholder="정답 영어 단어를 입력하세요" onkeypress="if(event.key === 'Enter') submitAnswer();">
-                <button onclick="submitAnswer()" style="width: 100px; margin-top:0;">제출</button>
-            </div>
-        </div>
-
-        <!-- 힌트 버튼 영역 (항상 노출) -->
-        <div class="hint-buttons">
-            <button class="btn-warning" onclick="showLengthHint()">글자 수 힌트</button>
-            <button class="btn-secondary" onclick="showMultipleChoice()">객관식 4개 보기</button>
-        </div>
-
-        <!-- 객관식 보기 영역 (초기 숨김) -->
+        <!-- 단어의 여러 가지 뜻과 상황 설명 박스 -->
+        <div class="situation-box" id="situation-text">뜻 설명 로딩 중...</div>
+        
+        <!-- 4개 단어 보기 영역 -->
         <div class="options-grid" id="options-container"></div>
 
         <!-- 정답 확인 후 피드백 및 다음 문제 버튼 -->
         <div class="feedback-box" id="feedback-box">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
-                <button class="btn-tts" onclick="playPronunciation()">🔊 발음 듣기</button>
+            <p id="feedback-result" style="font-weight: bold; margin: 0 0 8px 0;"></p>
+            <div style="margin-bottom: 6px; color: var(--text-muted);">
+                <span id="word-definition"></span>
             </div>
-            <p id="word-definition" style="margin: 0 0 6px 0; color: var(--text-muted);"></p>
-            <p id="word-example" style="margin: 0; color: #0284c7; font-style: italic;"></p>
+            <div style="color: #0284c7; font-style: italic; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+                <span id="word-example"></span>
+                <button class="btn-tts" onclick="playPronunciation()">🔊 예문 듣기</button>
+            </div>
         </div>
         <button id="next-btn" style="display: none;" onclick="nextQuestion()">다음 문제</button>
     </div>
@@ -420,7 +360,7 @@
     let score = 0;
     let selectedDifficulty = '';
     let selectedType = '';
-    let currentCorrectWord = '';
+    let currentExampleText = '';
 
     window.onload = function() {
         if (apiKey) {
@@ -486,8 +426,7 @@
 [
   {
     "word": "정답 영어 단어",
-    "situation": "이 단어가 사용되는 구체적인 한국어 상황 설명",
-    "definition": "단어의 상세한 의미 및 뉘앙스 설명",
+    "definition": "이 단어의 상세한 의미 및 여러 가지 뜻과 뉘앙스 설명",
     "example": "단어가 포함된 영어 예문 (한국어 번역 포함)",
     "distractors": ["오답단어1", "오답단어2", "오답단어3"]
   }
@@ -530,27 +469,13 @@
         }
 
         const q = quizData[currentIdx];
-        currentCorrectWord = q.word;
+        currentExampleText = q.example;
 
         document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
-        document.getElementById('situation-text').innerText = q.situation;
-        document.getElementById('hint-text').innerText = '';
-        document.getElementById('user-answer').value = '';
+        document.getElementById('situation-text').innerText = `📌 [단어의 의미 및 뉘앙스]\n${q.definition}`;
         
-        document.getElementById('input-area').style.display = 'block';
-        document.getElementById('options-container').style.display = 'none';
-        document.getElementById('feedback-box').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
-    }
-
-    function showLengthHint() {
-        const q = quizData[currentIdx];
-        document.getElementById('hint-text').innerText = `💡 글자 수 힌트: ${q.word.length}글자`;
-    }
-
-    function showMultipleChoice() {
-        const q = quizData[currentIdx];
+        // 보기 생성 (정답 + 3개의 오답을 섞어서 4개 버튼으로 배치)
         let options = [...q.distractors, q.word];
         options.sort(() => Math.random() - 0.5);
 
@@ -565,16 +490,8 @@
         });
 
         container.style.display = 'grid';
-    }
-
-    function submitAnswer() {
-        const userInputValue = document.getElementById('user-answer').value.trim();
-        if (!userInputValue) {
-            alert('단어를 입력해주세요!');
-            return;
-        }
-        const q = quizData[currentIdx];
-        processAnswer(userInputValue, q.word);
+        document.getElementById('feedback-box').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
     }
 
     function processAnswer(selected, correct) {
@@ -589,10 +506,9 @@
         }
 
         const q = quizData[currentIdx];
-        document.getElementById('word-definition').innerText = `📖 단어 설명: ${q.definition}`;
+        document.getElementById('word-definition').innerText = `📖 상세 정의: ${q.definition}`;
         document.getElementById('word-example').innerText = `💬 예문: ${q.example}`;
 
-        document.getElementById('input-area').style.display = 'none';
         document.getElementById('options-container').style.display = 'none';
         document.getElementById('feedback-box').style.display = 'block';
         document.getElementById('next-btn').style.display = 'block';
@@ -600,8 +516,8 @@
     }
 
     function playPronunciation() {
-        if (!currentCorrectWord) return;
-        const utterance = new SpeechSynthesisUtterance(currentCorrectWord);
+        if (!currentExampleText) return;
+        const utterance = new SpeechSynthesisUtterance(currentExampleText);
         utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
     }
