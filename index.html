@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영어 퀴즈</title>
+    <title>영어 단어퀴즈</title>
     <style>
         :root {
             --bg-color: #fcfbf9;
@@ -156,13 +156,26 @@
             padding: 30px;
             border-radius: 16px;
             width: 90%;
-            max-width: 420px;
+            max-width: 480px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 80vh;
+            overflow-y: auto;
+            box-sizing: border-box;
         }
         .modal-content h3 { margin-top: 0; color: var(--gold-primary); }
         .modal-content p { color: var(--text-muted); font-size: 14px; line-height: 1.5; }
         .close-btn { background: #ef4444; margin-top: 20px; border: none; }
         .close-btn:hover { background: #dc2626; }
+
+        /* 기록 상세 내역 스타일 */
+        .history-item-box {
+            background: #faf9f6;
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
 
         /* 퀴즈 스타일 */
         .quiz-header {
@@ -187,7 +200,6 @@
             color: var(--text-color);
         }
 
-        /* 4개 단어 버튼 그리드 */
         .options-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -214,7 +226,6 @@
             transform: translateY(-2px);
         }
 
-        /* 결과 피드백 박스 */
         .feedback-box {
             display: none;
             background: #faf9f6;
@@ -250,13 +261,14 @@
             text-align: center;
         }
         th { background: var(--gold-light); color: var(--gold-primary); }
-        td { color: var(--text-muted); }
+        td { color: var(--text-muted); cursor: pointer; }
+        tbody tr:hover { background-color: var(--gold-light); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>영어 단어 퀴즈</h1>
+    <h1>단어 퀴즈</h1>
 
     <!-- 1. API 키 설정 화면 -->
     <div id="setup-section" class="section active">
@@ -303,13 +315,10 @@
             <span id="quiz-score">점수: 0점</span>
         </div>
         
-        <!-- 단어의 여러 가지 뜻과 상황 설명 박스 -->
         <div class="situation-box" id="situation-text">뜻 설명 로딩 중...</div>
         
-        <!-- 4개 단어 보기 영역 -->
         <div class="options-grid" id="options-container"></div>
 
-        <!-- 정답 확인 후 피드백 및 다음 문제 버튼 -->
         <div class="feedback-box" id="feedback-box">
             <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
                 <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
@@ -328,7 +337,7 @@
         <h2 style="text-align: center; color: var(--gold-primary);">퀴즈 완료</h2>
         <p id="final-score-text" style="text-align: center; font-size: 18px; font-weight: bold; color: var(--text-color);"></p>
         
-        <h3 style="margin-top: 20px; color: var(--gold-primary); font-size: 16px;">역대 기록 보기</h3>
+        <h3 style="margin-top: 20px; color: var(--gold-primary); font-size: 16px;">역대 기록 보기 (클릭하여 상세 내역 확인)</h3>
         <div style="max-height: 200px; overflow-y: auto;">
             <table>
                 <thead>
@@ -357,6 +366,15 @@
     </div>
 </div>
 
+<!-- 기록 상세 확인 모달 -->
+<div class="modal" id="history-detail-modal">
+    <div class="modal-content">
+        <h3>퀴즈 상세 학습 내역</h3>
+        <div id="history-detail-body"></div>
+        <button class="close-btn" onclick="closeHistoryModal()">닫기</button>
+    </div>
+</div>
+
 <script>
     let apiKey = localStorage.getItem('gemini_api_key') || '';
     let quizData = [];
@@ -366,6 +384,7 @@
     let selectedType = '';
     let currentCorrectWord = '';
     let currentEnglishExample = '';
+    let sessionResults = [];
 
     window.onload = function() {
         if (apiKey) {
@@ -384,6 +403,9 @@
 
     function openHelpModal() { document.getElementById('help-modal').style.display = 'flex'; }
     function closeHelpModal() { document.getElementById('help-modal').style.display = 'none'; }
+    function openHistoryModal() { document.getElementById('history-detail-modal').style.display = 'flex'; }
+    function closeHistoryModal() { document.getElementById('history-detail-modal').style.display = 'none'; }
+
     function switchSection(sectionId) {
         document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
         document.getElementById(sectionId).classList.add('active');
@@ -464,6 +486,7 @@
         quizData = allQuestions;
         currentIdx = 0;
         score = 0;
+        sessionResults = [];
         switchSection('quiz-section');
         loadQuestion();
     }
@@ -513,6 +536,14 @@
 
         const q = quizData[currentIdx];
         document.getElementById('word-example').innerText = `💬 예문: ${q.example_en} (${q.example_ko})`;
+
+        sessionResults.push({
+            word: correct,
+            definition: q.definition,
+            isCorrect: isCorrect,
+            selected: selected
+        });
+
         document.getElementById('options-container').style.display = 'none';
         document.getElementById('feedback-box').style.display = 'block';
         document.getElementById('next-btn').style.display = 'block';
@@ -543,10 +574,11 @@
         document.getElementById('final-score-text').innerText = `총 점수: ${score}점 / 100점`;
 
         const historyRecord = {
-            date: new Date().toLocaleDateString(),
+            date: new Date().toLocaleString(),
             difficulty: selectedDifficulty,
             type: selectedType,
-            score: score
+            score: score,
+            results: sessionResults
         };
 
         let histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
@@ -571,11 +603,41 @@
             return;
         }
 
-        histories.forEach(h => {
+        histories.forEach((h, index) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `<td>${h.date}</td><td>${h.difficulty}</td><td>${h.type}</td><td><b>${h.score}점</b></td>`;
+            tr.onclick = () => showHistoryDetail(index);
             tbody.appendChild(tr);
         });
+    }
+
+    function showHistoryDetail(historyIndex) {
+        const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
+        const record = histories[historyIndex];
+        if (!record || !record.results) {
+            alert('상세 내역이 존재하지 않습니다.');
+            return;
+        }
+
+        const detailBody = document.getElementById('history-detail-body');
+        detailBody.innerHTML = `<p style="font-weight: bold; color: var(--gold-primary);">일시: ${record.date} (${record.score}점)</p>`;
+
+        record.results.forEach((item, i) => {
+            const statusColor = item.isCorrect ? '#16a34a' : '#dc2626';
+            const statusText = item.isCorrect ? '정답 ⭕' : `오답 ❌ (선택: ${item.selected})`;
+            
+            const box = document.createElement('div');
+            box.className = 'history-item-box';
+            box.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 4px; color: var(--text-color);">
+                    Q${i+1}. ${item.word} <span style="color: ${statusColor}; float: right;">${statusText}</span>
+                </div>
+                <div style="color: var(--text-muted);">${item.definition}</div>
+            `;
+            detailBody.appendChild(box);
+        });
+
+        openHistoryModal();
     }
 
     function resetToConfig() {
@@ -585,3 +647,4 @@
 
 </body>
 </html>
+
