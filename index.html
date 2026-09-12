@@ -440,7 +440,7 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
-    function getExcludedWordsFromHistory() {
+    /*function getExcludedWordsFromHistory() {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
         histories.forEach(h => {
@@ -453,6 +453,31 @@
             }
         });
         return excluded;
+    }*/
+
+function getExcludedWordsFromHistory(difficulty, type) {
+    const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
+    const excluded = new Set();
+
+    histories.forEach(h => {
+        // 랜덤 주제인 경우: 난이도만 같거나 혹은 전체에서 제외 (여기서는 동일 난이도의 랜덤 기록 + 해당 난이도 전체 기록 일부 관리 등 유연하게 설정 가능)
+        // 여기서는 깔끔하게 '동일 난이도'이면서 '동일 주제'인 경우만 제외하되, 랜덤 주제는 동일 난이도의 랜덤 기록에서만 제외하도록 설정합니다.
+        if (h.difficulty === difficulty) {
+            if (type === '🎲 무작위 주제 (랜덤)') {
+                // 랜덤 모드일 때는 랜덤 모드로 풀었던 기록의 단어들만 제외
+                if (h.type === '🎲 무작위 주제 (랜덤)' && h.results) {
+                    h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
+                }
+            } else {
+                // 특정 주제인 경우: 해당 난이도 & 해당 주제로 풀었던 기록만 제외
+                if (h.type === type && h.results) {
+                    h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
+                }
+            }
+        }
+    });
+
+    return excluded;
     }
 
     async function generateQuizQuestions() {
