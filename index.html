@@ -249,7 +249,7 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 기록 보기 리스트 스타일 (테이블 대신 한 줄 텍스트 형태) */
+        /* 기록 보기 리스트 스타일 */
         .history-list-container {
             max-height: 250px;
             overflow-y: auto;
@@ -276,7 +276,7 @@
 <body>
 
 <div class="container">
-    <h1>단어 퀴즈</h1>
+    <h1>영어 단어 퀴즈</h1>
 
     <!-- 1. API 키 설정 화면 -->
     <div id="setup-section" class="section active">
@@ -293,9 +293,9 @@
         <div class="form-group">
             <label for="difficulty">난이도 선택</label>
             <select id="difficulty">
-                <option value="초급 (Elementary)">초급</option>
-                <option value="중급 (Intermediate)" selected>중급</option>
-                <option value="고급 (Advanced)">고급</option>
+                <option value="초급 (Elementary)">초급 (Elementary)</option>
+                <option value="중급 (Intermediate)" selected>중급 (Intermediate)</option>
+                <option value="고급 (Advanced)">고급 (Advanced)</option>
             </select>
         </div>
         <div class="form-group">
@@ -440,20 +440,39 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
+    // 역대 기록에 포함된 모든 단어들을 추출하여 Set으로 반환하는 함수
+    function getExcludedWordsFromHistory() {
+        const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
+        const excluded = new Set();
+        histories.forEach(h => {
+            if (h.results && Array.isArray(h.results)) {
+                h.results.forEach(item => {
+                    if (item.word) {
+                        excluded.add(item.word.toLowerCase());
+                    }
+                });
+            }
+        });
+        return excluded;
+    }
+
     async function generateQuizQuestions() {
         selectedDifficulty = document.getElementById('difficulty').value;
         selectedType = document.getElementById('word-type').value;
         document.getElementById('loader').style.display = 'block';
 
         let allQuestions = [];
-        let existingWords = new Set();
+        // 역대 기록의 단어들과 이번 세션에서 이미 담긴 단어들을 추적
+        let existingWords = getExcludedWordsFromHistory();
         let attempts = 0;
 
         while (allQuestions.length < 10 && attempts < 5) {
             attempts++;
-            let excludeNote = existingWords.size > 0 ? ` 단, 다음 단어들은 이미 생성되었으므로 제외해줘: ${Array.from(existingWords).join(', ')}` : '';
+            let neededCount = 10 - allQuestions.length;
+            let excludeArray = Array.from(existingWords);
+            let excludeNote = excludeArray.length > 0 ? ` 단, 다음 단어들은 역대 기록에 있으므로 절대 제외해줘: ${excludeArray.join(', ')}` : '';
 
-            const prompt = `난이도: ${selectedDifficulty}, 단어 주제/유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 10문제를 생성해줘.${excludeNote}
+            const prompt = `난이도: ${selectedDifficulty}, 단어 주제/유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 ${neededCount}문제를 생성해줘.${excludeNote}
 반드시 아래 JSON 배열 형식으로만 응답해줘. (백틱 없이 순수 JSON만)
 [
   {
@@ -531,7 +550,7 @@
     function processAnswer(selected, correct) {
         const isCorrect = selected.toLowerCase() === correct.toLowerCase();
         if (isCorrect) {
-            score += 10;
+            score += Math.round(100 / quizData.length); // 문제 수에 맞게 점수 배분
             document.getElementById('feedback-result').innerText = `정답입니다! 👏 ('${correct}')`;
             document.getElementById('feedback-result').style.color = '#16a34a';
         } else {
@@ -577,7 +596,7 @@
     function finishQuiz() {
         switchSection('result-section');
         document.getElementById('section-title').innerText = '퀴즈 완료';
-        document.getElementById('final-score-text').innerText = `총 점수: ${score}점 / 100점`;
+        document.getElementById('final-score-text').innerText = `총 점수: ${score}점`;
 
         const historyRecord = {
             date: formatCustomDate(new Date()),
@@ -613,7 +632,6 @@
         histories.forEach((h, index) => {
             const row = document.createElement('div');
             row.className = 'history-row';
-            // 형식: [년월일 시분초] [난이도] [유형] [점수]
             row.innerHTML = `
                 <span>${h.date} | ${h.difficulty} | ${h.type}</span>
                 <b style="color: var(--gold-primary);">${h.score}점</b>
