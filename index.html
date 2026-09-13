@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>영어 단어 퀴즈</title>
     <style>
         :root {
@@ -22,19 +22,20 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
-            padding: 20px;
+            padding: 12px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            box-sizing: border-box;
         }
 
         .container {
             width: 100%;
             max-width: 620px;
             background: var(--card-bg);
-            padding: 35px;
-            border-radius: 20px;
+            padding: 20px 16px;
+            border-radius: 16px;
             border: 2px solid var(--gold-border);
             box-shadow: 0 10px 30px rgba(197, 160, 89, 0.1), 0 4px 15px rgba(0, 0, 0, 0.05);
             box-sizing: border-box;
@@ -44,8 +45,8 @@
             text-align: center;
             color: var(--gold-primary);
             margin-top: 0;
-            margin-bottom: 28px;
-            font-size: 28px;
+            margin-bottom: 20px;
+            font-size: 26px;
             font-weight: 700;
             letter-spacing: 1.5px;
         }
@@ -53,13 +54,13 @@
         .section { display: none; }
         .section.active { display: block; }
 
-        .form-group { margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
 
         .label-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
         label {
@@ -73,7 +74,7 @@
             background: none;
             border: none;
             color: var(--gold-primary);
-            font-size: 18px;
+            font-size: 17px;
             cursor: pointer;
             padding: 0;
             width: auto;
@@ -93,7 +94,7 @@
 
         input[type="text"], input[type="password"], select {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 14px;
             background-color: #faf9f6;
             border: 1px solid var(--border-color);
             border-radius: 10px;
@@ -102,6 +103,7 @@
             box-sizing: border-box;
             outline: none;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
         }
 
         input:focus, select:focus {
@@ -112,7 +114,7 @@
 
         button {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             background: linear-gradient(135deg, #c5a059 0%, #a37d37 100%);
             color: #ffffff;
             border: none;
@@ -121,8 +123,13 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 12px;
+            margin-top: 10px;
             box-shadow: 0 4px 10px rgba(197, 160, 89, 0.2);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.98);
         }
 
         button:hover {
@@ -147,12 +154,13 @@
             color: #0284c7;
             border: 1px solid #bae6fd;
             width: auto;
-            padding: 5px 12px;
-            font-size: 13px;
-            margin-left: 8px;
+            padding: 6px 10px;
+            font-size: 14px;
+            margin-left: 6px;
             margin-top: 0;
             display: inline-block;
             box-shadow: none;
+            vertical-align: middle;
         }
         .btn-tts:hover { background: #bae6fd; transform: none; }
 
@@ -177,33 +185,35 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            padding: 16px;
+            box-sizing: border-box;
         }
         .modal-content {
             background: var(--card-bg);
             border: 2px solid var(--gold-border);
-            padding: 30px;
+            padding: 24px 20px;
             border-radius: 16px;
-            width: 90%;
-            max-width: 520px;
+            width: 100%;
+            max-width: 480px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            max-height: 80vh;
+            max-height: 85vh;
             overflow-y: auto;
             box-sizing: border-box;
         }
         .modal-content h3 { margin-top: 0; color: var(--gold-primary); font-size: 22px; }
-        .modal-content p, .modal-content li { color: var(--text-muted); font-size: 17px; line-height: 1.5; }
+        .modal-content p, .modal-content li { color: var(--text-muted); font-size: 16px; line-height: 1.5; }
         .modal-content ul { padding-left: 20px; margin: 10px 0; }
         .modal-content strong { color: var(--text-color); }
-        .close-btn { background: #ef4444; margin-top: 20px; border: none; font-size: 17px; }
+        .close-btn { background: #ef4444; margin-top: 16px; border: none; font-size: 17px; }
         .close-btn:hover { background: #dc2626; }
 
         /* 기록 상세 내역 스타일 */
         .history-item-box {
             background: #faf9f6;
             border: 1px solid var(--border-color);
-            padding: 14px;
+            padding: 12px;
             border-radius: 10px;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             font-size: 16px;
         }
 
@@ -213,34 +223,34 @@
             justify-content: space-between;
             font-size: 17px;
             color: var(--text-muted);
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             font-weight: 600;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
 
         .situation-box {
             background: var(--gold-light);
             border-left: 4px solid var(--gold-primary);
-            padding: 18px;
-            border-radius: 0 12px 12px 0;
+            padding: 14px;
+            border-radius: 0 10px 10px 0;
             font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 16px;
+            line-height: 1.5;
+            margin-bottom: 14px;
             color: var(--text-color);
         }
 
         .options-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 14px;
         }
         .option-btn {
             background: #faf9f6;
             border: 1px solid var(--border-color);
             color: var(--text-color);
-            padding: 16px;
+            padding: 14px;
             border-radius: 10px;
             text-align: center;
             font-size: 17px;
@@ -249,20 +259,21 @@
             margin-top: 0;
             box-shadow: none;
             transition: all 0.2s ease;
+            width: 100%;
         }
         .option-btn:hover {
             border-color: var(--gold-primary);
             background: var(--gold-light);
-            transform: translateY(-2px);
+            transform: none;
         }
 
         .feedback-box {
             display: none;
             background: #faf9f6;
             border: 1px solid var(--gold-border);
-            padding: 18px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 14px;
             font-size: 17px;
             line-height: 1.5;
         }
@@ -271,33 +282,34 @@
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--gold-primary);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             animation: spin 1s linear infinite;
-            margin: 20px auto;
+            margin: 16px auto;
             display: none;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 기록 보기 리스트 스타일 */
         .history-list-container {
-            max-height: 250px;
+            max-height: 220px;
             overflow-y: auto;
-            margin-top: 15px;
+            margin-top: 12px;
             border: 1px solid var(--border-color);
             border-radius: 10px;
             background: #faf9f6;
         }
         .history-row {
-            padding: 14px 16px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 17px;
+            font-size: 16px;
             color: var(--text-muted);
             cursor: pointer;
             transition: background 0.2s;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 8px;
         }
         .history-row:last-child { border-bottom: none; }
         .history-row:hover { background-color: var(--gold-light); color: var(--text-color); }
@@ -363,13 +375,13 @@
         <div class="options-grid" id="options-container"></div>
 
         <div class="feedback-box" id="feedback-box">
-            <div style="display: flex; align-items: center; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;">
                 <p id="feedback-result" style="font-weight: bold; margin: 0;"></p>
                 <button class="btn-tts" onclick="playWordPronunciation()">🔊 단어 듣기</button>
             </div>
-            <div style="color: #0284c7; font-style: italic; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
-                <span id="word-example"></span>
-                <button class="btn-tts" onclick="playExamplePronunciation()">🔊 예문 영어만 듣기</button>
+            <div style="color: #0284c7; font-style: italic; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                <span id="word-example" style="flex: 1; min-width: 150px;"></span>
+                <button class="btn-tts" onclick="playExamplePronunciation()">🔊 예문 듣기</button>
             </div>
         </div>
         <button id="next-btn" style="display: none;" onclick="nextQuestion()">다음 문제</button>
@@ -377,11 +389,11 @@
 
     <!-- 4. 결과 및 기록 화면 -->
     <div id="result-section" class="section">
-        <h2 id="section-title" style="text-align: center; color: var(--gold-primary); font-size: 26px;">퀴즈 완료</h2>
-        <p id="final-score-text" style="text-align: center; font-size: 22px; font-weight: bold; color: var(--text-color);"></p>
+        <h2 id="section-title" style="text-align: center; color: var(--gold-primary); font-size: 24px;">퀴즈 완료</h2>
+        <p id="final-score-text" style="text-align: center; font-size: 20px; font-weight: bold; color: var(--text-color);"></p>
         
         <div class="history-list-container" id="history-list-box"></div>
-        <button onclick="resetToConfig()" style="margin-top: 20px;">다시 플레이하기</button>
+        <button onclick="resetToConfig()" style="margin-top: 16px;">다시 플레이하기</button>
     </div>
 </div>
 
@@ -390,18 +402,18 @@
     <div class="modal-content">
         <h3>Gemini API 키 발급 방법</h3>
         
-        <p style="margin-bottom: 8px;"><strong>1. Google AI Studio 접속 및 로그인</strong></p>
+        <p style="margin-bottom: 6px;"><strong>1. Google AI Studio 접속 및 로그인</strong></p>
         <ul>
             <li><a href="https://aistudio.google.com/" target="_blank" style="color: var(--gold-primary);">Google AI Studio</a> 웹사이트에 접속합니다. 🔗 <a href="https://aistudio.google.com/" target="_blank" style="color: var(--gold-primary); font-size: 15px;">[바로가기]</a></li>
             <li>Google 계정으로 로그인합니다.</li>
         </ul>
 
-        <p style="margin-bottom: 8px; margin-top: 12px;"><strong>2. API Key 생성 페이지 이동</strong></p>
+        <p style="margin-bottom: 6px; margin-top: 10px;"><strong>2. API Key 생성 페이지 이동</strong></p>
         <ul>
             <li>로그인 후 화면 좌측 사이드 메뉴 또는 메인 화면에서 <strong>Get API key</strong> (또는 Create API key) 버튼을 클릭합니다.</li>
         </ul>
 
-        <p style="margin-bottom: 8px; margin-top: 12px;"><strong>3. API Key 발급</strong></p>
+        <p style="margin-bottom: 6px; margin-top: 10px;"><strong>3. API Key 발급</strong></p>
         <ul>
             <li><strong>Create API key</strong> 버튼을 누릅니다.</li>
             <li>연결할 Google Cloud 프로젝트를 선택하거나, 새로운 프로젝트를 생성하여 진행합니다.</li>
@@ -602,7 +614,7 @@
             container.appendChild(btn);
         });
 
-        container.style.display = 'grid';
+        container.style.display = 'flex';
         document.getElementById('feedback-box').style.display = 'none';
         document.getElementById('next-btn').style.display = 'none';
     }
@@ -685,7 +697,7 @@
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
 
         if (histories.length === 0) {
-            listBox.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 17px;">저장된 기록이 없습니다.</div>`;
+            listBox.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 16px;">저장된 기록이 없습니다.</div>`;
             return;
         }
 
@@ -693,8 +705,8 @@
             const row = document.createElement('div');
             row.className = 'history-row';
             row.innerHTML = `
-                <span>${h.date} | ${h.difficulty} | ${h.type}</span>
-                <b style="color: var(--gold-primary);">${h.score}점</b>
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${h.date} | ${h.difficulty} | ${h.type}</span>
+                <b style="color: var(--gold-primary); flex-shrink: 0;">${h.score}점</b>
             `;
             row.onclick = () => showHistoryDetail(index);
             listBox.appendChild(row);
@@ -710,7 +722,7 @@
         }
 
         const detailBody = document.getElementById('history-detail-body');
-        detailBody.innerHTML = `<p style="font-weight: bold; color: var(--gold-primary); font-size: 17px;">일시: ${record.date} (${record.score}점)</p>`;
+        detailBody.innerHTML = `<p style="font-weight: bold; color: var(--gold-primary); font-size: 16px;">일시: ${record.date} (${record.score}점)</p>`;
 
         record.results.forEach((item, i) => {
             const statusColor = item.isCorrect ? '#16a34a' : '#dc2626';
