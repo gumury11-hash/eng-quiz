@@ -45,7 +45,7 @@
             color: var(--gold-primary);
             margin-top: 0;
             margin-bottom: 28px;
-            font-size: 28px; /* 1단계 확대 */
+            font-size: 28px;
             font-weight: 700;
             letter-spacing: 1.5px;
         }
@@ -59,7 +59,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            font-size: 15px; /* 1단계 확대 */
+            font-size: 15px;
             color: var(--text-color);
         }
 
@@ -69,7 +69,7 @@
             background-color: #faf9f6;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            font-size: 15px; /* 1단계 확대 */
+            font-size: 15px;
             color: var(--text-color);
             box-sizing: border-box;
             outline: none;
@@ -89,7 +89,7 @@
             color: #ffffff;
             border: none;
             border-radius: 10px;
-            font-size: 17px; /* 1단계 확대 */
+            font-size: 17px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -120,7 +120,7 @@
             border: 1px solid #bae6fd;
             width: auto;
             padding: 5px 12px;
-            font-size: 13px; /* 1단계 확대 */
+            font-size: 13px;
             margin-left: 8px;
             margin-top: 0;
             display: inline-block;
@@ -129,7 +129,7 @@
         .btn-tts:hover { background: #bae6fd; transform: none; }
 
         .help-link {
-            font-size: 14px; /* 1단계 확대 */
+            font-size: 14px;
             color: var(--gold-primary);
             text-decoration: underline;
             cursor: pointer;
@@ -163,7 +163,7 @@
             box-sizing: border-box;
         }
         .modal-content h3 { margin-top: 0; color: var(--gold-primary); font-size: 20px; }
-        .modal-content p { color: var(--text-muted); font-size: 15px; /* 1단계 확대 */ line-height: 1.5; }
+        .modal-content p { color: var(--text-muted); font-size: 15px; line-height: 1.5; }
         .close-btn { background: #ef4444; margin-top: 20px; border: none; font-size: 16px; }
         .close-btn:hover { background: #dc2626; }
 
@@ -174,14 +174,14 @@
             padding: 14px;
             border-radius: 10px;
             margin-bottom: 12px;
-            font-size: 14px; /* 1단계 확대 */
+            font-size: 14px;
         }
 
         /* 퀴즈 스타일 */
         .quiz-header {
             display: flex;
             justify-content: space-between;
-            font-size: 15px; /* 1단계 확대 */
+            font-size: 15px;
             color: var(--text-muted);
             margin-bottom: 16px;
             font-weight: 600;
@@ -194,7 +194,7 @@
             border-left: 4px solid var(--gold-primary);
             padding: 18px;
             border-radius: 0 12px 12px 0;
-            font-size: 16px; /* 1단계 확대 */
+            font-size: 16px;
             line-height: 1.6;
             margin-bottom: 16px;
             color: var(--text-color);
@@ -213,7 +213,7 @@
             padding: 16px;
             border-radius: 10px;
             text-align: center;
-            font-size: 17px; /* 1단계 확대 */
+            font-size: 17px;
             font-weight: 600;
             cursor: pointer;
             margin-top: 0;
@@ -233,7 +233,7 @@
             padding: 18px;
             border-radius: 12px;
             margin-bottom: 15px;
-            font-size: 15px; /* 1단계 확대 */
+            font-size: 15px;
             line-height: 1.5;
         }
 
@@ -261,7 +261,7 @@
         .history-row {
             padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 15px; /* 1단계 확대 */
+            font-size: 15px;
             color: var(--text-muted);
             cursor: pointer;
             transition: background 0.2s;
@@ -407,16 +407,15 @@
     }
 
     async function callGeminiAPI(prompt, retries = 5) {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
         
         for (let attempt = 1; attempt <= retries; attempt++) {
             try {
-                const response = await fetch(url, {
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: { responseMimeType: "application/json" }
+                        contents: [{ parts: [{ text: prompt }] }]
                     })
                 });
 
@@ -440,7 +439,6 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
-    // 난이도 및 주제별 조건부 제외 처리 (생성 속도 향상 및 고갈 방지)
     function getExcludedWordsFromHistory(difficulty, type) {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
@@ -475,15 +473,15 @@
             attempts++;
             let neededCount = 10 - allQuestions.length;
             let excludeArray = Array.from(existingWords);
-            let excludeNote = excludeArray.length > 0 ? ` 단, 다음 단어들은 이미 출제되었으므로 절대 제외해줘: ${excludeArray.join(', ')}` : '';
+            let excludeNote = excludeArray.length > 0 ? ` 단, 다음 단어들은 이미 출제되었으므로 제외해줘: ${excludeArray.join(', ')}` : '';
 
             const prompt = `난이도: ${selectedDifficulty}, 단어 주제/유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 ${neededCount}문제를 생성해줘.${excludeNote}
-반드시 아래 JSON 배열 형식으로만 응답해줘. (백틱 없이 순수 JSON만)
+반드시 다른 설명 없이 오직 순수 JSON 배열 형식만 출력해줘. (마크다운 백틱 \`\`\`json 등도 절대 포함하지 말고 배열 기호 [ 와 ] 로 시작하고 끝나게 할 것)
 [
   {
     "word": "정답 영어 단어",
     "definition": "이 단어의 상세한 의미 및 여러 가지 뜻과 뉘앙스 설명",
-    "example_en": "단어가 포함된 영어 예문만 작성",
+    "example_en": "단어가 포함된 영어 예문",
     "example_ko": "해당 영어 예문의 한국어 번역",
     "distractors": ["오답단어1", "오답단어2", "오답단어3"]
   }
@@ -491,7 +489,13 @@
 
             try {
                 const responseText = await callGeminiAPI(prompt);
-                const cleanText = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+                let cleanText = responseText.trim();
+                if (cleanText.startsWith('```json')) {
+                    cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
+                } else if (cleanText.startsWith('```')) {
+                    cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
+                }
+                
                 const parsed = JSON.parse(cleanText);
 
                 for (let q of parsed) {
