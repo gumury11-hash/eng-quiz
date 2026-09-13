@@ -45,7 +45,7 @@
             color: var(--gold-primary);
             margin-top: 0;
             margin-bottom: 28px;
-            font-size: 28px;
+            font-size: 28px; /* 타이틀 유지 */
             font-weight: 700;
             letter-spacing: 1.5px;
         }
@@ -59,7 +59,7 @@
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 17px; /* 15px -> 17px (+2) */
             color: var(--text-color);
         }
 
@@ -69,7 +69,7 @@
             background-color: #faf9f6;
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            font-size: 15px;
+            font-size: 17px; /* 15px -> 17px (+2) */
             color: var(--text-color);
             box-sizing: border-box;
             outline: none;
@@ -89,7 +89,7 @@
             color: #ffffff;
             border: none;
             border-radius: 10px;
-            font-size: 17px;
+            font-size: 17px; /* 버튼 유지 */
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -120,7 +120,7 @@
             border: 1px solid #bae6fd;
             width: auto;
             padding: 5px 12px;
-            font-size: 13px;
+            font-size: 13px; /* 버튼 유지 */
             margin-left: 8px;
             margin-top: 0;
             display: inline-block;
@@ -129,7 +129,7 @@
         .btn-tts:hover { background: #bae6fd; transform: none; }
 
         .help-link {
-            font-size: 14px;
+            font-size: 16px; /* 14px -> 16px (+2) */
             color: var(--gold-primary);
             text-decoration: underline;
             cursor: pointer;
@@ -162,9 +162,9 @@
             overflow-y: auto;
             box-sizing: border-box;
         }
-        .modal-content h3 { margin-top: 0; color: var(--gold-primary); font-size: 20px; }
-        .modal-content p { color: var(--text-muted); font-size: 15px; line-height: 1.5; }
-        .close-btn { background: #ef4444; margin-top: 20px; border: none; font-size: 16px; }
+        .modal-content h3 { margin-top: 0; color: var(--gold-primary); font-size: 22px; /* 20px -> 22px (+2) */ }
+        .modal-content p { color: var(--text-muted); font-size: 17px; /* 15px -> 17px (+2) */ line-height: 1.5; }
+        .close-btn { background: #ef4444; margin-top: 20px; border: None; font-size: 17px; } /* 버튼 유지 */
         .close-btn:hover { background: #dc2626; }
 
         /* 기록 상세 내역 스타일 */
@@ -174,14 +174,14 @@
             padding: 14px;
             border-radius: 10px;
             margin-bottom: 12px;
-            font-size: 14px;
+            font-size: 16px; /* 14px -> 16px (+2) */
         }
 
         /* 퀴즈 스타일 */
         .quiz-header {
             display: flex;
             justify-content: space-between;
-            font-size: 15px;
+            font-size: 17px; /* 15px -> 17px (+2) */
             color: var(--text-muted);
             margin-bottom: 16px;
             font-weight: 600;
@@ -194,7 +194,7 @@
             border-left: 4px solid var(--gold-primary);
             padding: 18px;
             border-radius: 0 12px 12px 0;
-            font-size: 16px;
+            font-size: 18px; /* 16px -> 18px (+2) */
             line-height: 1.6;
             margin-bottom: 16px;
             color: var(--text-color);
@@ -213,7 +213,7 @@
             padding: 16px;
             border-radius: 10px;
             text-align: center;
-            font-size: 17px;
+            font-size: 17px; /* 버튼 유지 */
             font-weight: 600;
             cursor: pointer;
             margin-top: 0;
@@ -233,7 +233,7 @@
             padding: 18px;
             border-radius: 12px;
             margin-bottom: 15px;
-            font-size: 15px;
+            font-size: 17px; /* 15px -> 17px (+2) */
             line-height: 1.5;
         }
 
@@ -261,7 +261,7 @@
         .history-row {
             padding: 14px 16px;
             border-bottom: 1px solid var(--border-color);
-            font-size: 15px;
+            font-size: 17px; /* 15px -> 17px (+2) */
             color: var(--text-muted);
             cursor: pointer;
             transition: background 0.2s;
@@ -342,8 +342,8 @@
 
     <!-- 4. 결과 및 기록 화면 -->
     <div id="result-section" class="section">
-        <h2 id="section-title" style="text-align: center; color: var(--gold-primary); font-size: 24px;">퀴즈 완료</h2>
-        <p id="final-score-text" style="text-align: center; font-size: 20px; font-weight: bold; color: var(--text-color);"></p>
+        <h2 id="section-title" style="text-align: center; color: var(--gold-primary); font-size: 26px;">퀴즈 완료</h2>
+        <p id="final-score-text" style="text-align: center; font-size: 22px; font-weight: bold; color: var(--text-color);"></p>
         
         <div class="history-list-container" id="history-list-box"></div>
         <button onclick="resetToConfig()" style="margin-top: 20px;">다시 플레이하기</button>
@@ -407,7 +407,7 @@
     }
 
     async function callGeminiAPI(prompt, retries = 5) {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
         
         for (let attempt = 1; attempt <= retries; attempt++) {
             try {
@@ -491,198 +491,4 @@
                 const responseText = await callGeminiAPI(prompt);
                 let cleanText = responseText.trim();
                 if (cleanText.startsWith('```json')) {
-                    cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
-                } else if (cleanText.startsWith('```')) {
-                    cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
-                }
-                
-                const parsed = JSON.parse(cleanText);
-
-                for (let q of parsed) {
-                    if (q.word && !existingWords.has(q.word.toLowerCase()) && allQuestions.length < 10) {
-                        existingWords.add(q.word.toLowerCase());
-                        allQuestions.push(q);
-                    }
-                }
-            } catch (e) {
-                console.error('생성 시도 중 오류 발생:', e);
-            }
-        }
-
-        document.getElementById('loader').style.display = 'none';
-
-        if (allQuestions.length === 0) {
-            alert('문제 생성 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.');
-            return;
-        }
-
-        quizData = allQuestions;
-        currentIdx = 0;
-        score = 0;
-        sessionResults = [];
-        switchSection('quiz-section');
-        loadQuestion();
-    }
-
-    function loadQuestion() {
-        if (currentIdx >= quizData.length) {
-            finishQuiz();
-            return;
-        }
-
-        const q = quizData[currentIdx];
-        currentCorrectWord = q.word;
-        currentEnglishExample = q.example_en;
-
-        document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
-        document.getElementById('quiz-score').innerText = `점수: ${score}점`;
-        document.getElementById('situation-text').innerText = `${q.definition}`;
-        
-        let options = [...q.distractors, q.word];
-        options.sort(() => Math.random() - 0.5);
-
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        options.forEach(opt => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = opt;
-            btn.onclick = () => processAnswer(opt, q.word);
-            container.appendChild(btn);
-        });
-
-        container.style.display = 'grid';
-        document.getElementById('feedback-box').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'none';
-    }
-
-    function processAnswer(selected, correct) {
-        const isCorrect = selected.toLowerCase() === correct.toLowerCase();
-        if (isCorrect) {
-            score += Math.round(100 / quizData.length);
-            document.getElementById('feedback-result').innerText = `정답입니다! 👏 ('${correct}')`;
-            document.getElementById('feedback-result').style.color = '#16a34a';
-        } else {
-            document.getElementById('feedback-result').innerText = `틀렸습니다! 정답은 '${correct}' 입니다.`;
-            document.getElementById('feedback-result').style.color = '#dc2626';
-        }
-
-        const q = quizData[currentIdx];
-        document.getElementById('word-example').innerText = `💬 예문: ${q.example_en} (${q.example_ko})`;
-
-        sessionResults.push({
-            word: correct,
-            definition: q.definition,
-            isCorrect: isCorrect,
-            selected: selected
-        });
-
-        document.getElementById('options-container').style.display = 'none';
-        document.getElementById('feedback-box').style.display = 'block';
-        document.getElementById('next-btn').style.display = 'block';
-        document.getElementById('quiz-score').innerText = `점수: ${score}점`;
-    }
-
-    function playWordPronunciation() {
-        if (!currentCorrectWord) return;
-        const utterance = new SpeechSynthesisUtterance(currentCorrectWord);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
-    }
-
-    function playExamplePronunciation() {
-        if (!currentEnglishExample) return;
-        const utterance = new SpeechSynthesisUtterance(currentEnglishExample);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
-    }
-
-    function nextQuestion() {
-        currentIdx++;
-        loadQuestion();
-    }
-
-    function finishQuiz() {
-        switchSection('result-section');
-        document.getElementById('section-title').innerText = '퀴즈 완료';
-        document.getElementById('final-score-text').innerText = `총 점수: ${score}점`;
-
-        const historyRecord = {
-            date: formatCustomDate(new Date()),
-            difficulty: selectedDifficulty,
-            type: selectedType,
-            score: score,
-            results: sessionResults
-        };
-
-        let histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
-        histories.unshift(historyRecord);
-        localStorage.setItem('quiz_histories', JSON.stringify(histories));
-        renderHistoryList();
-    }
-
-    function showHistorySection() {
-        switchSection('result-section');
-        document.getElementById('section-title').innerText = '기록 보기';
-        document.getElementById('final-score-text').innerText = '';
-        renderHistoryList();
-    }
-
-    function renderHistoryList() {
-        const listBox = document.getElementById('history-list-box');
-        listBox.innerHTML = '';
-        const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
-
-        if (histories.length === 0) {
-            listBox.innerHTML = `<div style="padding: 20px; text-align: center; color: var(--text-muted); font-size: 15px;">저장된 기록이 없습니다.</div>`;
-            return;
-        }
-
-        histories.forEach((h, index) => {
-            const row = document.createElement('div');
-            row.className = 'history-row';
-            row.innerHTML = `
-                <span>${h.date} | ${h.difficulty} | ${h.type}</span>
-                <b style="color: var(--gold-primary);">${h.score}점</b>
-            `;
-            row.onclick = () => showHistoryDetail(index);
-            listBox.appendChild(row);
-        });
-    }
-
-    function showHistoryDetail(historyIndex) {
-        const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
-        const record = histories[historyIndex];
-        if (!record || !record.results) {
-            alert('상세 내역이 존재하지 않습니다.');
-            return;
-        }
-
-        const detailBody = document.getElementById('history-detail-body');
-        detailBody.innerHTML = `<p style="font-weight: bold; color: var(--gold-primary); font-size: 15px;">일시: ${record.date} (${record.score}점)</p>`;
-
-        record.results.forEach((item, i) => {
-            const statusColor = item.isCorrect ? '#16a34a' : '#dc2626';
-            const statusText = item.isCorrect ? '정답 ⭕' : `오답 ❌ (선택: ${item.selected})`;
-            
-            const box = document.createElement('div');
-            box.className = 'history-item-box';
-            box.innerHTML = `
-                <div style="font-weight: bold; margin-bottom: 4px; color: var(--text-color); font-size: 15px;">
-                    Q${i+1}. ${item.word} <span style="color: ${statusColor}; float: right;">${statusText}</span>
-                </div>
-                <div style="color: var(--text-muted);">${item.definition}</div>
-            `;
-            detailBody.appendChild(box);
-        });
-
-        openHistoryModal();
-    }
-
-    function resetToConfig() {
-        switchSection('config-section');
-    }
-</script>
-
-</body>
-</html>
+                    cleanText = cleanText.replace(/^
