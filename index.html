@@ -532,17 +532,21 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
+    // [수정됨] 언어별, 난이도별, 주제별로 완전하게 구분하여 출제된 단어를 수집하는 중복 체크 함수
     function getExcludedWordsFromHistory(language, difficulty, type) {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
 
         histories.forEach(h => {
+            // 언어와 난이도가 일치하는 기록만 필터링
             if (h.language === language && h.difficulty === difficulty) {
                 if (type === '🎲 무작위 주제 (랜덤)') {
+                    // 무작위 주제의 경우 해당 언어/난이도의 모든 무작위 출제 단어 누적
                     if (h.type === '🎲 무작위 주제 (랜덤)' && h.results) {
                         h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
                     }
                 } else {
+                    // 특정 주제의 경우 해당 주제 내에서 출제된 단어 누적
                     if (h.type === type && h.results) {
                         h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
                     }
@@ -560,6 +564,7 @@
         document.getElementById('loader').style.display = 'block';
 
         let allQuestions = [];
+        // [적용] 언어별/난이도별/주제별로 중복 검사 대상 단어 집합 가져오기
         let existingWords = getExcludedWordsFromHistory(selectedLanguage, selectedDifficulty, selectedType);
         let attempts = 0;
 
@@ -567,7 +572,7 @@
             attempts++;
             let neededCount = 10 - allQuestions.length;
             let excludeArray = Array.from(existingWords);
-            let excludeNote = excludeArray.length > 0 ? ` 단, 다음 단어들은 이미 출제되었으므로 제외해줘: ${excludeArray.join(', ')}` : '';
+            let excludeNote = excludeArray.length > 0 ? ` 단, 언어(${selectedLanguage}) 및 난이도(${selectedDifficulty})에서 다음 단어들은 이미 출제되었으므로 절대로 제외해줘: ${excludeArray.join(', ')}` : '';
 
             const prompt = `학습 언어: ${selectedLanguage}, 난이도: ${selectedDifficulty}, 주제/유형: ${selectedType}에 맞는 ${selectedLanguage} 단어 퀴즈 ${neededCount}문제를 생성해줘.${excludeNote}
 정답 단어와 예문은 반드시 선택한 학습 언어(${selectedLanguage})로 작성하고, 뜻 설명과 예문 번역은 한국어로 제공해줘.
