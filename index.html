@@ -499,7 +499,6 @@
     }
 
     async function callGeminiAPI(prompt, retries = 5) {
-        // gemini-3.6-flash lite 모델명 고정 유지
         const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash-lite:generateContent?key=${apiKey}`;
         
         for (let attempt = 1; attempt <= retries; attempt++) {
@@ -532,21 +531,17 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
-    // [수정됨] 언어별, 난이도별, 주제별로 완전하게 구분하여 출제된 단어를 수집하는 중복 체크 함수
     function getExcludedWordsFromHistory(language, difficulty, type) {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
 
         histories.forEach(h => {
-            // 언어와 난이도가 일치하는 기록만 필터링
             if (h.language === language && h.difficulty === difficulty) {
                 if (type === '🎲 무작위 주제 (랜덤)') {
-                    // 무작위 주제의 경우 해당 언어/난이도의 모든 무작위 출제 단어 누적
                     if (h.type === '🎲 무작위 주제 (랜덤)' && h.results) {
                         h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
                     }
                 } else {
-                    // 특정 주제의 경우 해당 주제 내에서 출제된 단어 누적
                     if (h.type === type && h.results) {
                         h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
                     }
@@ -564,7 +559,6 @@
         document.getElementById('loader').style.display = 'block';
 
         let allQuestions = [];
-        // [적용] 언어별/난이도별/주제별로 중복 검사 대상 단어 집합 가져오기
         let existingWords = getExcludedWordsFromHistory(selectedLanguage, selectedDifficulty, selectedType);
         let attempts = 0;
 
@@ -572,30 +566,44 @@
             attempts++;
             let neededCount = 10 - allQuestions.length;
             let excludeArray = Array.from(existingWords);
-            let excludeNote = excludeArray.length > 0 ? ` 단, 언어(${selectedLanguage}) 및 난이도(${selectedDifficulty})에서 다음 단어들은 이미 출제되었으므로 절대로 제외해줘: ${excludeArray.join(', ')}` : '';
+            let excludeNote = excludeArray.length > 0 ? ` 제외할 단어 목록: ${excludeArray.join(', ')}` : '';
 
-            const prompt = `학습 언어: ${selectedLanguage}, 난이도: ${selectedDifficulty}, 주제/유형: ${selectedType}에 맞는 ${selectedLanguage} 단어 퀴즈 ${neededCount}문제를 생성해줘.${excludeNote}
-정답 단어와 예문은 반드시 선택한 학습 언어(${selectedLanguage})로 작성하고, 뜻 설명과 예문 번역은 한국어로 제공해줘.
-반드시 다른 설명 없이 오직 순수 JSON 배열 형식만 출력해줘. (마크다운 백틱 \`\`\`json 등도 절대 포함하지 말고 배열 기호 [ 와 ] 로 시작하고 끝나게 할 것)
+            // 특수문자 및 언어별 파싱 오류를 방지하기 위해 프롬프트 구조 정비
+            const prompt = `You are a helpful language teacher. Generate ${neededCount} quiz questions for target language: "${selectedLanguage}", difficulty: "${selectedDifficulty}", topic: "${selectedType}".${excludeNote}
+Output must be ONLY a valid raw JSON array and nothing else. Do not use markdown formatting like \`\`\`json.
+Structure:
 [
   {
-    "word": "정답 단어 (${selectedLanguage})",
-    "definition": "이 단어의 상세한 의미 및 한국어 뜻과 뉘앙스 설명",
-    "example_en": "해당 단어가 포함된 ${selectedLanguage} 예문",
-    "example_ko": "해당 예문의 한국어 번역",
-    "distractors": ["오답단어1", "오답단어2", "오답단어3"]
+    "word": "Target word in ${selectedLanguage}",
+    "definition": "Meaning and nuances explained in Korean",
+    "example_en": "Example sentence in ${selectedLanguage}",
+    "example_ko": "Korean translation of example",
+    "distractors": ["wrong1", "wrong2", "wrong3"]
   }
 ]`;
 
             try {
                 const responseText = await callGeminiAPI(prompt);
                 let cleanText = responseText.trim();
-                if (cleanText.startsWith('```json')) {
-                    cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
-                } else if (cleanText.startsWith('```')) {
-                    cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
+                
+                // 마크다운 및 불필요한 텍스트 제거 보완
+                if (cleanText.includes('```')) {
+                    const parts = cleanText.split('```');
+                    for (let p of parts) {
+                        if (p.trim().startsWith('[') || p.trim().startsWith('json\n[')) {
+                            cleanText = p.replace(/^json/, '').trim();
+                            break;
+                        }
+                    }
                 }
                 
+                // 첫 [ 와 마지막 ] 사이의 데이터만 정밀 추출
+                const firstBracket = cleanText.indexOf('[');
+                const lastBracket = cleanText.lastIndexOf(']');
+                if (firstBracket !== -1 && lastBracket !== -1) {
+                    cleanText = cleanText.substring(firstBracket, lastBracket + 1);
+                }
+
                 const parsed = JSON.parse(cleanText);
 
                 for (let q of parsed) {
@@ -612,7 +620,7 @@
         document.getElementById('loader').style.display = 'none';
 
         if (allQuestions.length === 0) {
-            alert('문제 생성 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.');
+            alert('문제 생성 중 오류가 발생했습니다. API 키 상태를 확인하거나 잠시 후 다시 시도해주세요.');
             return;
         }
 
@@ -693,7 +701,7 @@
         if (langStr.includes('베트남어')) return 'vi-VN';
         if (langStr.includes('러시아어')) return 'ru-RU';
         if (langStr.includes('아랍어')) return 'ar-SA';
-        return 'en-US'; // 기본 영어
+        return 'en-US';
     }
 
     function playWordPronunciation() {
