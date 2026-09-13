@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>단어 퀴즈</title>
+    <title>영어 단어 퀴즈</title>
     <style>
         :root {
             --bg-color: #fcfbf9;
@@ -331,7 +331,7 @@
 <body>
 
 <div class="container">
-    <h1>단어 퀴즈</h1>
+    <h1>영어 단어 퀴즈</h1>
 
     <!-- 1. API 키 설정 화면 -->
     <div id="setup-section" class="section active">
@@ -350,21 +350,6 @@
 
     <!-- 2. 게임 설정 화면 -->
     <div id="config-section" class="section">
-        <div class="form-group">
-            <label for="target-language">학습할 언어 선택</label>
-            <select id="target-language">
-                <option value="영어 (English)" selected>🇺🇸 영어 (English)</option>
-                <option value="일본어 (Japanese)">🇯🇵 일본어 (Japanese)</option>
-                <option value="중국어 (Chinese)">🇨🇳 중국어 (Chinese)</option>
-                <option value="스페인어 (Spanish)">🇪🇸 스페인어 (Spanish)</option>
-                <option value="프랑스어 (French)">🇫🇷 프랑스어 (French)</option>
-                <option value="독일어 (German)">🇩🇪 독일어 (German)</option>
-                <option value="이탈리아어 (Italian)">🇮🇹 이탈리아어 (Italian)</option>
-                <option value="베트남어 (Vietnamese)">🇻🇳 베트남어 (Vietnamese)</option>
-                <option value="러시아어 (Russian)">🇷🇺 러시아어 (Russian)</option>
-                <option value="아랍어 (Arabic)">🇸🇦 아랍어 (Arabic)</option>
-            </select>
-        </div>
         <div class="form-group">
             <label for="difficulty">난이도 선택</label>
             <select id="difficulty">
@@ -466,11 +451,10 @@
     let quizData = [];
     let currentIdx = 0;
     let score = 0;
-    let selectedLanguage = '';
     let selectedDifficulty = '';
     let selectedType = '';
     let currentCorrectWord = '';
-    let currentTargetExample = '';
+    let currentEnglishExample = '';
     let sessionResults = [];
 
     window.onload = function() {
@@ -499,7 +483,8 @@
     }
 
     async function callGeminiAPI(prompt, retries = 5) {
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash-lite:generateContent?key=${apiKey}`;
+        // 요구하신 gemini-3.6-flash 모델명 유지
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
         
         for (let attempt = 1; attempt <= retries; attempt++) {
             try {
@@ -531,12 +516,12 @@
         return `${y}.${m}.${d} ${h}:${min}:${s}`;
     }
 
-    function getExcludedWordsFromHistory(language, difficulty, type) {
+    function getExcludedWordsFromHistory(difficulty, type) {
         const histories = JSON.parse(localStorage.getItem('quiz_histories') || '[]');
         const excluded = new Set();
 
         histories.forEach(h => {
-            if (h.language === language && h.difficulty === difficulty) {
+            if (h.difficulty === difficulty) {
                 if (type === '🎲 무작위 주제 (랜덤)') {
                     if (h.type === '🎲 무작위 주제 (랜덤)' && h.results) {
                         h.results.forEach(item => { if (item.word) excluded.add(item.word.toLowerCase()); });
@@ -553,57 +538,41 @@
     }
 
     async function generateQuizQuestions() {
-        selectedLanguage = document.getElementById('target-language').value;
         selectedDifficulty = document.getElementById('difficulty').value;
         selectedType = document.getElementById('word-type').value;
         document.getElementById('loader').style.display = 'block';
 
         let allQuestions = [];
-        let existingWords = getExcludedWordsFromHistory(selectedLanguage, selectedDifficulty, selectedType);
+        let existingWords = getExcludedWordsFromHistory(selectedDifficulty, selectedType);
         let attempts = 0;
 
         while (allQuestions.length < 10 && attempts < 5) {
             attempts++;
             let neededCount = 10 - allQuestions.length;
             let excludeArray = Array.from(existingWords);
-            let excludeNote = excludeArray.length > 0 ? ` 제외할 단어 목록: ${excludeArray.join(', ')}` : '';
+            let excludeNote = excludeArray.length > 0 ? ` 단, 다음 단어들은 이미 출제되었으므로 제외해줘: ${excludeArray.join(', ')}` : '';
 
-            // 특수문자 및 언어별 파싱 오류를 방지하기 위해 프롬프트 구조 정비
-            const prompt = `You are a helpful language teacher. Generate ${neededCount} quiz questions for target language: "${selectedLanguage}", difficulty: "${selectedDifficulty}", topic: "${selectedType}".${excludeNote}
-Output must be ONLY a valid raw JSON array and nothing else. Do not use markdown formatting like \`\`\`json.
-Structure:
+            const prompt = `난이도: ${selectedDifficulty}, 단어 주제/유형: ${selectedType}에 맞는 서로 다른 영어 단어 퀴즈 ${neededCount}문제를 생성해줘.${excludeNote}
+반드시 다른 설명 없이 오직 순수 JSON 배열 형식만 출력해줘. (마크다운 백틱 \`\`\`json 등도 절대 포함하지 말고 배열 기호 [ 와 ] 로 시작하고 끝나게 할 것)
 [
   {
-    "word": "Target word in ${selectedLanguage}",
-    "definition": "Meaning and nuances explained in Korean",
-    "example_en": "Example sentence in ${selectedLanguage}",
-    "example_ko": "Korean translation of example",
-    "distractors": ["wrong1", "wrong2", "wrong3"]
+    "word": "정답 영어 단어",
+    "definition": "이 단어의 상세한 의미 및 여러 가지 뜻과 뉘앙스 설명",
+    "example_en": "단어가 포함된 영어 예문",
+    "example_ko": "해당 영어 예문의 한국어 번역",
+    "distractors": ["오답단어1", "오답단어2", "오답단어3"]
   }
 ]`;
 
             try {
                 const responseText = await callGeminiAPI(prompt);
                 let cleanText = responseText.trim();
-                
-                // 마크다운 및 불필요한 텍스트 제거 보완
-                if (cleanText.includes('```')) {
-                    const parts = cleanText.split('```');
-                    for (let p of parts) {
-                        if (p.trim().startsWith('[') || p.trim().startsWith('json\n[')) {
-                            cleanText = p.replace(/^json/, '').trim();
-                            break;
-                        }
-                    }
+                if (cleanText.startsWith('```json')) {
+                    cleanText = cleanText.replace(/^```json/, '').replace(/```$/, '').trim();
+                } else if (cleanText.startsWith('```')) {
+                    cleanText = cleanText.replace(/^```/, '').replace(/```$/, '').trim();
                 }
                 
-                // 첫 [ 와 마지막 ] 사이의 데이터만 정밀 추출
-                const firstBracket = cleanText.indexOf('[');
-                const lastBracket = cleanText.lastIndexOf(']');
-                if (firstBracket !== -1 && lastBracket !== -1) {
-                    cleanText = cleanText.substring(firstBracket, lastBracket + 1);
-                }
-
                 const parsed = JSON.parse(cleanText);
 
                 for (let q of parsed) {
@@ -620,7 +589,7 @@ Structure:
         document.getElementById('loader').style.display = 'none';
 
         if (allQuestions.length === 0) {
-            alert('문제 생성 중 오류가 발생했습니다. API 키 상태를 확인하거나 잠시 후 다시 시도해주세요.');
+            alert('문제 생성 중 오류가 발생했습니다. API 키를 확인하거나 다시 시도해주세요.');
             return;
         }
 
@@ -640,7 +609,7 @@ Structure:
 
         const q = quizData[currentIdx];
         currentCorrectWord = q.word;
-        currentTargetExample = q.example_en;
+        currentEnglishExample = q.example_en;
 
         document.getElementById('quiz-progress').innerText = `문제 ${currentIdx + 1} / ${quizData.length}`;
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
@@ -691,30 +660,17 @@ Structure:
         document.getElementById('quiz-score').innerText = `점수: ${score}점`;
     }
 
-    function getSpeechLangCode(langStr) {
-        if (langStr.includes('일본어')) return 'ja-JP';
-        if (langStr.includes('중국어')) return 'zh-CN';
-        if (langStr.includes('스페인어')) return 'es-ES';
-        if (langStr.includes('프랑스어')) return 'fr-FR';
-        if (langStr.includes('독일어')) return 'de-DE';
-        if (langStr.includes('이탈리아어')) return 'it-IT';
-        if (langStr.includes('베트남어')) return 'vi-VN';
-        if (langStr.includes('러시아어')) return 'ru-RU';
-        if (langStr.includes('아랍어')) return 'ar-SA';
-        return 'en-US';
-    }
-
     function playWordPronunciation() {
         if (!currentCorrectWord) return;
         const utterance = new SpeechSynthesisUtterance(currentCorrectWord);
-        utterance.lang = getSpeechLangCode(selectedLanguage);
+        utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
     }
 
     function playExamplePronunciation() {
-        if (!currentTargetExample) return;
-        const utterance = new SpeechSynthesisUtterance(currentTargetExample);
-        utterance.lang = getSpeechLangCode(selectedLanguage);
+        if (!currentEnglishExample) return;
+        const utterance = new SpeechSynthesisUtterance(currentEnglishExample);
+        utterance.lang = 'en-US';
         window.speechSynthesis.speak(utterance);
     }
 
@@ -730,7 +686,6 @@ Structure:
 
         const historyRecord = {
             date: formatCustomDate(new Date()),
-            language: selectedLanguage,
             difficulty: selectedDifficulty,
             type: selectedType,
             score: score,
@@ -764,7 +719,7 @@ Structure:
             const row = document.createElement('div');
             row.className = 'history-row';
             row.innerHTML = `
-                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${h.date} | ${h.language || '영어'} | ${h.difficulty}</span>
+                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${h.date} | ${h.difficulty} | ${h.type}</span>
                 <b style="color: var(--gold-primary); flex-shrink: 0;">${h.score}점</b>
             `;
             row.onclick = () => showHistoryDetail(index);
